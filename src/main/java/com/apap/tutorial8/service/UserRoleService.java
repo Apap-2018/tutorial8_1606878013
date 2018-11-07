@@ -7,6 +7,6 @@ public interface UserRoleService {
     public String encrypt(String password);
     void updateUser(UserRoleModel user, String newPassword);
     UserRoleModel getUserCurrentLoggedIn();
-    boolean confirmPassword (String oldPassword, String newPassword, String confirmedNewPassword);
-    boolean confirmPassword (String password);
+    String confirmPassword (String oldPassword, String newPassword, String confirmedNewPassword);
+    String confirmPassword (String password);
 }

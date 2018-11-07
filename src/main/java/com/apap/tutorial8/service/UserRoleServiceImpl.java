@@ -50,47 +50,49 @@ public class UserRoleServiceImpl implements UserRoleService{
     }
 
     @Override
-    public boolean confirmPassword (String oldPassword, String newPassword, String confirmedNewPassword) {
-        boolean flagOldPassword = false;
-        boolean flagNewPassword = false;
-        boolean flagContainNumber = false;
-        boolean flagContainLetter = false;
-
-        boolean flag = false;
-
-        //Password lama yang di form sama dengan password lama sebenarnya
-        if (!encrypt(oldPassword).equals(getUserCurrentLoggedIn().getPassword())){
-            flagOldPassword = true ;
-        }
-
-        //Password baru yang di form sama dengan password baru yang akan dikonfirmasi di form
-        if ((newPassword.equals(confirmedNewPassword)) && confirmedNewPassword.length() >= 8) {
-            flagNewPassword = true;
-        }
-
-        //Password mengandung angka
-        for (char c : newPassword.toCharArray()) {
-            if (Character.isDigit(c)) {
-                flagContainNumber = true;
-            }
-        }
-
-        //Password mengandung huruf
-        flagContainLetter = newPassword.matches(".*[a-zA-Z]+.*");
-
-        flag = flagNewPassword && flagOldPassword && flagContainNumber && flagContainLetter;
-        return flag;
-    }
-
-    @Override
-    public boolean confirmPassword(String password){
-        boolean passwordLength = false;
+    public String confirmPassword (String oldPassword, String newPassword, String confirmedNewPassword) {
+        String message = "";
         boolean passwordContainsDigit = false;
         boolean passwordContainsLetter = false;
 
-        if (password.length() >= 8){
-            passwordLength = true;
+        for (char c : newPassword.toCharArray()) {
+            if (Character.isDigit(c)){
+                passwordContainsDigit = true;
+            }
         }
+
+        if (!(newPassword.equals(confirmedNewPassword))) {
+            message = "Password baru dan konfirmasi password baru tidak sama";
+        }
+
+        if (!passwordContainsDigit) {
+            message = "Password harus terdiri atas minimal satu buah angka";
+        }
+
+        passwordContainsLetter = newPassword.matches(".*[a-zA-Z]+.*");
+
+        if (!passwordContainsLetter) {
+            message = "Password harus terdiri atas minimal satu buah huruf";
+        }
+
+        if (!(newPassword.length() >= 8)){
+            message = "Password harus terdiri atas minimal 8 buah karakter";
+        }
+
+        UserRoleModel user = getUserCurrentLoggedIn();
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        if (!(passwordEncoder.matches(oldPassword, user.getPassword()))){
+            message = "Password lama tidak sama";
+        }
+
+        return message;
+    }
+
+    @Override
+    public String confirmPassword(String password){
+        String message = "";
+        boolean passwordContainsDigit = false;
+        boolean passwordContainsLetter = false;
 
         for (char c : password.toCharArray()) {
             if (Character.isDigit(c)) {
@@ -98,8 +100,20 @@ public class UserRoleServiceImpl implements UserRoleService{
             }
         }
 
+        if (!passwordContainsDigit){
+            message = "Password harus terdiri atas minimal satu buah angka";
+        }
+
         passwordContainsLetter = password.matches(".*[a-zA-Z]+.*");
 
-        return passwordLength && passwordContainsDigit && passwordContainsLetter;
+        if (!passwordContainsLetter) {
+            message = "Password harus terdiri atas minimal satu buah huruf";
+        }
+
+        if (!(password.length() >= 8)){
+            message = "Password harus terdiri atas minimal 8 buah karakter";
+        }
+
+        return message;
     }
 }
